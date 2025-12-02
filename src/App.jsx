@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import logo from "./assets/historyai-logo.png";
 import Dashboard from "./dashboard";
+import Chat from "./chat";
 
 function Splash() {
   return (
@@ -26,7 +27,7 @@ function Login({ mode, setMode, onContinue }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    onContinue(); // just go to dashboard (front-end only)
+    onContinue();
   }
 
   return (
@@ -130,27 +131,65 @@ function Login({ mode, setMode, onContinue }) {
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [authMode, setAuthMode] = useState("login");
-  const [showDashboard, setShowDashboard] = useState(false);
+  const [view, setView] = useState("login"); // "login" | "dashboard" | "chat"
+  const [currentCharacter, setCurrentCharacter] = useState("Alan Turing");
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3500);
     return () => clearTimeout(timer);
   }, []);
 
-  if (showDashboard) {
-    return <Dashboard />; // dashboard handles its own fade/slide
+  function handleAuthContinue() {
+    setView("dashboard");
   }
 
+  function handleSelectCharacter(name) {
+    setCurrentCharacter(name);
+    setView("chat");
+  }
+
+  function handleLogoClick() {
+    setView("dashboard");
+  }
+
+  if (showSplash) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <Splash />
+      </div>
+    );
+  }
+
+  if (view === "chat") {
+    return (
+      <Chat
+        character={currentCharacter}
+        onBack={() => setView("dashboard")}
+        onSelectCharacter={handleSelectCharacter}
+        onLogoClick={handleLogoClick}
+      />
+    );
+  }
+
+  if (view === "dashboard") {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <Dashboard
+          onSelectCharacter={handleSelectCharacter}
+          onLogoClick={handleLogoClick}
+        />
+      </div>
+    );
+  }
+
+  // login/register view
   return (
     <div className="min-h-screen bg-black text-white">
-      {showSplash && <Splash />}
-      {!showSplash && (
-        <Login
-          mode={authMode}
-          setMode={setAuthMode}
-          onContinue={() => setShowDashboard(true)}
-        />
-      )}
+      <Login
+        mode={authMode}
+        setMode={setAuthMode}
+        onContinue={handleAuthContinue}
+      />
     </div>
   );
 }
