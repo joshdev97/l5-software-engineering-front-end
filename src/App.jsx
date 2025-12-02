@@ -1,3 +1,4 @@
+// App.jsx - FIXED SO "CREATE AN ACCOUNT" DOES NOT GO TO DASHBOARD
 import { useEffect, useState } from "react";
 import logo from "./assets/historyai-logo.png";
 import Dashboard from "./dashboard";
@@ -27,7 +28,11 @@ function Login({ mode, setMode, onContinue }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    onContinue();
+    if (isLogin) {
+      // ONLY login submits go to dashboard
+      onContinue();
+    }
+    // register submit stays on this screen for now
   }
 
   return (
@@ -69,6 +74,7 @@ function Login({ mode, setMode, onContinue }) {
                 Chat Now
               </button>
 
+              {/* just switches view to register */}
               <button
                 type="button"
                 onClick={() => setMode("register")}
@@ -130,8 +136,8 @@ function Login({ mode, setMode, onContinue }) {
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [authMode, setAuthMode] = useState("login");
-  const [view, setView] = useState("login"); // "login" | "dashboard" | "chat"
+  const [authMode, setAuthMode] = useState("login"); // 'login' | 'register'
+  const [view, setView] = useState("login"); // 'login' | 'dashboard' | 'chat'
   const [currentCharacter, setCurrentCharacter] = useState("Alan Turing");
 
   useEffect(() => {
@@ -182,7 +188,7 @@ function App() {
     );
   }
 
-  // login/register view
+  // login / register
   return (
     <div className="min-h-screen bg-black text-white">
       <Login

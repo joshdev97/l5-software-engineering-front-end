@@ -1,3 +1,4 @@
+// dashboard.jsx - LOGO CENTERED ABOVE HERO TITLE
 import logo from "./assets/historyai-logo.png";
 import alanImg from "./assets/alan-turing.png";
 import adaImg from "./assets/ada-lovelace.png";
@@ -14,27 +15,32 @@ function Dashboard({ onSelectCharacter, onLogoClick }) {
       />
 
       {/* MAIN DASHBOARD */}
-      <main className="flex-1 bg-[#050816] px-6 py-5 overflow-y-auto">
-        <header className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <img
-              src={logo}
-              alt="history.ai logo"
-              className="h-8 object-contain"
-            />
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-300">
-            <span>Welcome Back,</span>
-            <span className="font-semibold">Walid</span>
-          </div>
-        </header>
+      <main className="flex-1 bg-[#050816] px-6 py-8 overflow-y-auto flex flex-col">
+        {/* CENTERED LOGO ABOVE HERO */}
+        <div className="flex flex-col items-center mb-6">
+          <img
+            src={logo}
+            alt="history.ai logo"
+            className="h-12 md:h-14 w-auto object-contain mb-2"
+          />
+        </div>
 
-        <section className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-300">
-            Chat with <span className="text-white">Historical Legends</span>
+        {/* HERO TITLE */}
+        <section className="mb-8 flex items-center justify-center">
+          <h2 className="text-2xl md:text-4xl text-center tracking-wide leading-tight">
+            <span className="animate-heroChatWith opacity-0 inline-block font-light">
+              Chat with
+            </span>
+            <span className="mx-2 animate-heroHistorical opacity-0 inline-block text-[#46BCEC] font-medium">
+              historical
+            </span>
+            <span className="animate-heroLegends opacity-0 inline-block text-[#46BCEC] font-medium">
+              legends.
+            </span>
           </h2>
         </section>
 
+        {/* CHARACTER CARDS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Alan Turing */}
           <div

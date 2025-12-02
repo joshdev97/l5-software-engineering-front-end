@@ -41,16 +41,16 @@ function Sidebar({ onSelectCharacter, onLogoClick }) {
       <button
         type="button"
         onClick={onLogoClick}
-        className="flex items-center gap-2 text-sm text-gray-200 mb-4 transition-transform duration-150 ease-out hover:scale-105"
+        className="w-40 flex items-center gap-2 text-sm text-gray-200 mb-4 transition-transform duration-150 ease-out hover:scale-105"
       >
         <span className="flex items-center justify-center translate-y-[1px]">
           <img
             src={chatbubble}
             alt="New chat"
-            className="w-4 h-4 object-contain"
+            className="w-7 h-7 object-contain"
           />
         </span>
-        <span>New chat</span>
+        <span className="transform -translate-y-[3px]">New chat</span>
       </button>
 
       <hr className="border-gray-700 mb-3" />
