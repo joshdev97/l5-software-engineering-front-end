@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* base: keep body black to avoid any white flash */
+body {
+    @apply bg-black text-white;
+}
+
+/* Splash animations */
+
+@keyframes logoInOut {
+  0%   { opacity: 0; transform: scale(0.9); }
+  20%  { opacity: 1; transform: scale(1); }
+  75%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.98); }
+}
+
+@keyframes textInOut {
+  0%   { opacity: 0; transform: translateY(10px); }
+  40%  { opacity: 0; transform: translateY(10px); }
+  60%  { opacity: 1; transform: translateY(0); }
+  85%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(5px); }
+}
+
+.animate-logoIn {
+  animation: logoInOut 3.5s ease-out forwards;
+}
+
+.animate-textIn {
+  animation: textInOut 3.5s ease-out forwards;
+}
+
+/* Login card fade-in */
+
+@keyframes screenFadeIn {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-screenIn {
+  animation: screenFadeIn 0.5s ease-out forwards;
+}
+
+/* Dashboard fade from black + slide up */
+
+@keyframes dashboardIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    background-color: #000000;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    background-color: #000000;
+  }
+}
+
+.animate-dashboardIn {
+  animation: dashboardIn 0.6s ease-out forwards;
+}
