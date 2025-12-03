@@ -1,8 +1,10 @@
-// App.jsx - FIXED SO "CREATE AN ACCOUNT" DOES NOT GO TO DASHBOARD
+// App.jsx – login + dashboard + chat + profile + settings
 import { useEffect, useState } from "react";
 import logo from "./assets/historyai-logo.png";
 import Dashboard from "./dashboard";
 import Chat from "./chat";
+import Profile from "./profile";
+import Settings from "./settings";
 
 function Splash() {
   return (
@@ -29,10 +31,8 @@ function Login({ mode, setMode, onContinue }) {
   function handleSubmit(e) {
     e.preventDefault();
     if (isLogin) {
-      // ONLY login submits go to dashboard
       onContinue();
     }
-    // register submit stays on this screen for now
   }
 
   return (
@@ -74,7 +74,6 @@ function Login({ mode, setMode, onContinue }) {
                 Chat Now
               </button>
 
-              {/* just switches view to register */}
               <button
                 type="button"
                 onClick={() => setMode("register")}
@@ -136,9 +135,10 @@ function Login({ mode, setMode, onContinue }) {
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [authMode, setAuthMode] = useState("login"); // 'login' | 'register'
-  const [view, setView] = useState("login"); // 'login' | 'dashboard' | 'chat'
+  const [authMode, setAuthMode] = useState("login");
+  const [view, setView] = useState("login"); // login | dashboard | chat | profile | settings
   const [currentCharacter, setCurrentCharacter] = useState("Alan Turing");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3500);
@@ -158,6 +158,18 @@ function App() {
     setView("dashboard");
   }
 
+  function handleOpenProfile() {
+    setView("profile");
+  }
+
+  function handleOpenSettings() {
+    setView("settings");
+  }
+
+  function toggleSidebar() {
+    setIsSidebarOpen((prev) => !prev);
+  }
+
   if (showSplash) {
     return (
       <div className="min-h-screen bg-black text-white">
@@ -170,9 +182,12 @@ function App() {
     return (
       <Chat
         character={currentCharacter}
-        onBack={() => setView("dashboard")}
         onSelectCharacter={handleSelectCharacter}
         onLogoClick={handleLogoClick}
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={toggleSidebar}
+        onOpenProfile={handleOpenProfile}
+        onOpenSettings={handleOpenSettings}
       />
     );
   }
@@ -183,12 +198,43 @@ function App() {
         <Dashboard
           onSelectCharacter={handleSelectCharacter}
           onLogoClick={handleLogoClick}
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={toggleSidebar}
+          onOpenProfile={handleOpenProfile}
+          onOpenSettings={handleOpenSettings}
         />
       </div>
     );
   }
 
-  // login / register
+  if (view === "profile") {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <Profile
+          onLogoClick={handleLogoClick}
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={toggleSidebar}
+          onOpenProfile={handleOpenProfile}
+          onOpenSettings={handleOpenSettings}
+        />
+      </div>
+    );
+  }
+
+  if (view === "settings") {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <Settings
+          onLogoClick={handleLogoClick}
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={toggleSidebar}
+          onOpenProfile={handleOpenProfile}
+          onOpenSettings={handleOpenSettings}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Login
