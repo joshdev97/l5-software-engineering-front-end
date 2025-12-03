@@ -6,6 +6,8 @@ import settingsIcon from "./assets/settings.png";
 import alanImg from "./assets/alan-turing.png";
 import adaImg from "./assets/ada-lovelace.png";
 import johnImg from "./assets/john-von-neumann.png";
+import menuIcon from "./assets/menu.png";
+import collapseIcon from "./assets/collapse.png";
 
 const RECENT_CHATS = [
   { name: "Alan Turing", image: alanImg },
@@ -19,37 +21,66 @@ function Sidebar({
   onOpenProfile,
   onOpenSettings,
   isOpen,
+  onToggleSidebar,
 }) {
   return (
     <aside
       className={`bg-[#111827] py-4 flex flex-col transition-all duration-200 border-r border-black
       ${isOpen ? "w-72 px-4" : "w-16 px-2 items-center"}`}
     >
-      {/* TOP: logo + (optional) search */}
+      {/* TOP: logo / expand button + (optional) search + collapse icon */}
       <div
         className={`flex items-center ${
           isOpen ? "gap-2 mb-3" : "justify-center mb-3"
-        }`}
+        } w-full`}
       >
+        {/* Left circle: menu (collapsed) / logo (expanded) */}
         <button
           type="button"
-          onClick={onLogoClick}
-          aria-label="Go to dashboard"
+          onClick={onToggleSidebar}
+          aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-transparent transition-transform duration-150 ease-out hover:scale-110 cursor-pointer"
         >
-          <img
-            src={icon}
-            alt="history.ai icon"
-            className="w-full h-full object-contain"
-          />
+          {isOpen ? (
+            <img
+              src={icon}
+              alt="history.ai icon"
+              className="w-full h-full object-contain"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLogoClick && onLogoClick();
+              }}
+            />
+          ) : (
+            <img
+              src={menuIcon}
+              alt="Open sidebar"
+              className="w-6 h-6 object-contain"
+            />
+          )}
         </button>
 
+        {/* Search + collapse (only when open) */}
         {isOpen && (
-          <input
-            type="text"
-            placeholder="Search chat history"
-            className="flex-1 rounded-full bg-[#020617] border border-gray-700 px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-sky-500"
-          />
+          <div className="flex-1 flex items-center gap-1">
+            <input
+              type="text"
+              placeholder="Search chat history"
+              className="flex-1 rounded-full bg-[#020617] border border-gray-700 px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-sky-500"
+            />
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              aria-label="Collapse sidebar"
+              className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-transparent transition-transform duration-150 ease-out hover:scale-110 cursor-pointer"
+            >
+              <img
+                src={collapseIcon}
+                alt="Collapse sidebar"
+                className="w-full h-full object-contain"
+              />
+            </button>
+          </div>
         )}
       </div>
 
@@ -85,7 +116,7 @@ function Sidebar({
               <button
                 key={idx}
                 type="button"
-                onClick={() => onSelectCharacter(chat.name)}
+                onClick={() => onSelectCharacter && onSelectCharacter(chat.name)}
                 className="w-full text-left rounded-xl bg-[#020617] border border-gray-700 px-3 py-2 flex items-start gap-2 hover:border-sky-500 hover:bg-[#0b1220] cursor-pointer transition-all duration-150"
               >
                 <div className="w-6 h-6 rounded-full bg-gray-400 overflow-hidden">
@@ -122,7 +153,6 @@ function Sidebar({
         >
           {isOpen ? (
             <>
-              {/* Settings button -> Settings page */}
               <button
                 type="button"
                 onClick={onOpenSettings}
@@ -135,7 +165,6 @@ function Sidebar({
                 />
               </button>
 
-              {/* User + profile -> Profile page */}
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-300 font-bold">User123</span>
                 <button

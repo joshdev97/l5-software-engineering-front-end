@@ -150,3 +150,62 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Theme support */
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+}
+
+[data-theme="high-contrast"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #000000;
+  --text-primary: #000000;
+  --text-secondary: #ffffff;
+  --border-color: #000000;
+}
+
+[data-high-contrast="true"] {
+  filter: contrast(1.5) !important;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  color-scheme: light;
+}
+
+/* High contrast mode */
+[data-high-contrast="true"] {
+  filter: contrast(2) brightness(1.2);
+}
+
+/* Update your existing components to use CSS variables */
+.bg-050816 { background-color: var(--bg-primary, #050816) !important; }
+.bg-020617 { background-color: var(--bg-secondary, #020617) !important; }
+.text-white { color: var(--text-primary, white) !important; }
+.border-gray-700 { border-color: var(--border-color, #374151) !important; }
+.text-gray-400 { color: var(--text-secondary, #9ca3af) !important; }
+
+/* Banner slide/fade in (dashboard auth banner) */
+@keyframes bannerSlideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-bannerSlideFadeIn {
+  animation: bannerSlideFadeIn 0.4s ease-out forwards;
+}
