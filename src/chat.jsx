@@ -1,4 +1,7 @@
 // chat.jsx – MENU CARD MATCHING DASHBOARD + PROFILE/SETTINGS NAV
+// WITH CHAT STATE MANAGEMENT (messages, input, isLoading, error, refs, welcome message)
+
+import { useState, useRef, useEffect } from "react";
 import logo from "./assets/historyai-logo.png";
 import icon from "./assets/historyai-icon.png";
 import alanImg from "./assets/alan-turing.png";
@@ -22,6 +25,17 @@ const CHARACTER_CONFIG = {
   },
 };
 
+// Utility function to format timestamp into readable form (e.g., "4:32 PM")
+const formatTimestamp = (timestamp) => {
+  const date = new Date(timestamp);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const adjustedHours = hours % 12 || 12;
+  const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  return `${adjustedHours}:${paddedMinutes} ${ampm}`;
+};
+
 function Chat({
   character = "Alan Turing",
   onSelectCharacter,
@@ -31,11 +45,101 @@ function Chat({
   onOpenProfile,
   onOpenSettings,
 }) {
+  // 1.1 Chat state management
+  const [messages, setMessages] = useState([
+    {
+      id: "welcome",
+      role: "ai",
+      content:
+        "Welcome to HistoryAI! I'm here to help you explore the foundations of computing through conversations with historical AI pioneers. Ask me anything about computing history!",
+      timestamp: Date.now(),
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const lastMessageTimeRef = useRef(Date.now());
+  const inputRef = useRef(null);
+  const messagesEndRef = useRef(null);
+
   const fallback = CHARACTER_CONFIG["Alan Turing"];
   const config = CHARACTER_CONFIG[character] || fallback;
 
+  // Auto-scroll to bottom when new messages added
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
+
+  // 1.2 Implement sendMessage function
+  const sendMessage = () => {
+    // Check 5-second throttle
+    const now = Date.now();
+    if (now - lastMessageTimeRef.current < 5000) {
+      setError("Please wait 5 seconds between messages.");
+      return false;
+    }
+
+    // Validate: not empty, not whitespace-only, max 1500 chars
+    const trimmedInput = input.trim();
+    if (!trimmedInput) {
+      setError("Message cannot be empty.");
+      return false;
+    }
+    if (trimmedInput.length > 1500) {
+      setError("Message cannot exceed 1500 characters.");
+      return false;
+    }
+
+    // Add user message to chat
+    const userMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: trimmedInput,
+      timestamp: Date.now(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+    setError(null);
+    lastMessageTimeRef.current = now;
+
+    // Simulate AI response after 1.5s delay
+    setTimeout(() => {
+      const aiResponse = {
+        id: `ai-${Date.now()}`,
+        role: "ai",
+        content: `Thanks for your message: "${userMessage.content}". This is a demo response from ${character}. In a real app, this would come from an AI API!`,
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, aiResponse]);
+      setIsLoading(false);
+    }, 1500);
+
+    return true;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendMessage();
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const characterCount = input.length;
+
   return (
-    <div className="min-h-screen bg-black text-white flex animate-dashboardIn">
+    <div className="min-h-screen bg-[#050816] text-white flex animate-dashboardIn">
       {/* COLLAPSIBLE SIDEBAR */}
       <Sidebar
         onSelectCharacter={onSelectCharacter}
@@ -45,9 +149,9 @@ function Chat({
         isOpen={isSidebarOpen}
       />
 
-      {/* MAIN CHAT AREA – full background */}
-      <main className="flex-1 bg-[#050816] px-4 py-4 flex flex-col relative">
-        {/* tiled background */}
+      {/* MAIN CHAT AREA (full background) */}
+      <main className="flex-1 bg-[#050816] px-4 py-4 flex flex-col relative h-screen">
+        {/* Tiled background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div
             className="absolute opacity-2"
@@ -65,11 +169,11 @@ function Chat({
         {/* CONTENT LAYER */}
         <div className="relative flex flex-col h-full gap-4">
           {/* TOP BAR */}
-          <header className="mb-3 flex items-center justify-between gap-3">
+          <header className="mb-3 flex items-center justify-between gap-3 flex-shrink-0">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               {/* MENU CARD */}
               <div className="h-16 flex items-center">
-                <div className="h-10 w-10 rounded-lg bg-[#020617] border border-gray-700 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-lg bg-020617 border border-gray-700 flex items-center justify-center">
                   <button
                     type="button"
                     onClick={onToggleSidebar}
@@ -84,8 +188,8 @@ function Chat({
                 </div>
               </div>
 
-              {/* CHARACTER PROFILE */}
-              <div className="h-12 rounded-2xl bg-[#020617] border border-gray-700 px-4 flex items-center gap-3 min-w-0 flex-1">
+              {/* CHARACTER PROFILE (restored) */}
+              <div className="h-12 rounded-2xl bg-020617 border border-gray-700 px-4 flex items-center gap-3 min-w-0 flex-1">
                 <div className="w-9 h-9 rounded-full bg-gray-400 overflow-hidden">
                   <img
                     src={config.image}
@@ -95,14 +199,14 @@ function Chat({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate">{character}</p>
-                  <p className="text-[10px] text-gray-400 truncate md:whitespace-normal">
+                  <p className="text-[10px] text-gray-400 truncate whitespace-nowrap">
                     {config.bio}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* right: history.ai logo */}
+            {/* history.ai logo */}
             <div className="flex-shrink-0 flex items-center justify-end">
               <img
                 src={logo}
@@ -113,65 +217,122 @@ function Chat({
           </header>
 
           {/* MESSAGES AREA */}
-          <section className="flex-1 flex flex-col gap-4 overflow-y-auto">
-            <div className="flex items-start gap-2">
-              <div className="w-6 h-6 rounded-full bg-gray-400" />
-              <div>
-                <p className="text-xs font-semibold mb-1">{character}</p>
-                <p className="text-[11px] text-gray-300 max-w-xs">
-                  {fallback.bio}
-                </p>
+          <section className="flex-1 flex flex-col gap-4 overflow-y-auto scrollbar-hide pb-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "items-start"
+                } gap-3`}
+              >
+                {message.role === "ai" && (
+                  <>
+                    <div className="w-7 h-7 rounded-full bg-gray-400 flex-shrink-0 overflow-hidden">
+                      <img
+                        src={config.image}
+                        alt={character}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                    <div className="flex flex-col max-w-[85%]">
+                      <span className="text-sm text-white font-semibold mb-1">
+                        {character}
+                      </span>
+                      <p className="text-[15px] leading-snug font-thin text-[#BEE6F9] m-0">
+                        {message.content}
+                      </p>
+                      <span className="text-xs text-gray-500 mt-0.5">
+                        {formatTimestamp(message.timestamp)}
+                      </span>
+                    </div>
+                  </>
+                )}
+                {message.role === "user" && (
+                  <div className="flex flex-col items-end max-w-[85%]">
+                    <div className="text-[15px] leading-snug font-thin text-white bg-[#124968] px-3 py-2 rounded-2xl">
+                      {message.content}
+                    </div>
+                    <span className="text-xs text-gray-500 mt-0.5">
+                      {formatTimestamp(message.timestamp)}
+                    </span>
+                  </div>
+                )}
               </div>
-            </div>
+            ))}
 
-            <div className="flex justify-end">
-              <button className="rounded-full bg-sky-500 px-4 py-1 text-[11px] font-semibold hover:bg-sky-400 active:bg-sky-600 transition-colors duration-150">
-                Lorem ipsum dolor sit
-              </button>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <div className="w-6 h-6 rounded-full bg-gray-400" />
-              <div>
-                <p className="text-xs font-semibold mb-1">{character}</p>
-                <p className="text-[11px] text-gray-300 max-w-xs">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <button className="rounded-full bg-sky-500 px-4 py-1 text-[11px] font-semibold hover:bg-sky-400 active:bg-sky-600 transition-colors duration-150">
-                Lorem ipsum dolor sit
-              </button>
-            </div>
-
-            <div className="flex items-start gap-2 mt-2">
-              <div className="w-6 h-6 rounded-full bg-gray-400" />
-              <div className="w-40 h-40 rounded-2xl bg-gray-200 flex items-center justify-center hover:shadow-lg hover:shadow-sky-500/20 transition-shadow duration-150">
-                <div className="w-20 h-16 border-2 border-gray-400 flex items-center justify-center">
-                  <span className="text-gray-500 text-xs">Image</span>
+            {isLoading && (
+              <div className="flex items-start gap-3 mt-2">
+                <div className="w-7 h-7 rounded-full bg-gray-400 flex-shrink-0 overflow-hidden">
+                  <img
+                    src={config.image}
+                    alt={character}
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
+                <div className="flex flex-col max-w-[85%]">
+                  <span className="text-sm text-white font-semibold mb-1">
+                    {character}
+                  </span>
+                  <div className="inline-flex items-center gap-1 px-3 py-2 bg-transparent">
+                    <span className="typing-dot" />
+                    <span className="typing-dot typing-dot-delay-1" />
+                    <span className="typing-dot typing-dot-delay-2" />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {error && (
+              <div className="flex justify-center">
+                <div className="p-3 rounded-2xl bg-red-500/20 border border-red-500/50 text-red-300 text-xs max-w-xs animate-pulse">
+                  {error}
+                </div>
+              </div>
+            )}
+
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </section>
 
-          {/* INPUT BAR */}
-          <form className="mt-2 flex items-center gap-2">
-            <div className="flex-1 flex items-center bg-[#020617] border border-gray-700 rounded-2xl px-3 focus-within:border-sky-500 focus-within:shadow-[0_0_0_1px_rgba(56,189,248,0.6)] transition-all duration-150">
-              <input
-                type="text"
-                placeholder="Enter your message..."
-                className="flex-1 bg-transparent outline-none text-xs text-gray-200 py-2"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center text-lg hover:bg-sky-400 active:bg-sky-600 transition-colors duration-150"
+          {/* INPUT BAR - Send button INSIDE bubble with custom caret color */}
+          <form className="flex flex-col gap-1 flex-shrink-0" onSubmit={handleSubmit}>
+            <div 
+              className="relative flex items-center bg-020617 border border-gray-700 rounded-2xl px-3 focus-within:border-sky-500 focus-within:shadow-0-0-1px-rgba(56,189,248,0.6) transition-all duration-150 h-12"
+              style={{ position: "relative" }}
             >
-              ➤
-            </button>
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="Enter your message..."
+                className="flex-1 bg-transparent outline-none text-xs text-gray-200 py-2 pr-12 resize-none max-h-24 mr-10 caret-[#8FD5F5]"
+                disabled={isLoading}
+                maxLength={1500}
+                rows={1}
+                aria-label="Enter your message"
+              />
+              {/* Send button positioned INSIDE the bubble */}
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-lg transition-all duration-150 absolute right-3 top-1/2 transform -translate-y-1/2 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: "#1BA1DA" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#8FD5F5";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#1BA1DA";
+                }}
+                aria-label="Send message"
+              >
+                ➤
+              </button>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Shift + Enter for new line</span>
+              <span>{characterCount}/1500</span>
+            </div>
           </form>
         </div>
       </main>

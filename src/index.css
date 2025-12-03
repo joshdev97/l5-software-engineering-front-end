@@ -104,3 +104,49 @@ body {
 .animate-heroLegends {
   animation: heroFadeIn 1s ease-out 2.5s forwards;
 }
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: #46BCEC;
+  display: inline-block;
+  animation: typing-bounce 0.8s infinite ease-in-out;
+  opacity: 0.8;
+}
+
+.typing-dot-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.typing-dot-delay-2 {
+  animation-delay: 0.2s;
+}
+
+@keyframes typing-bounce {
+  0% {
+    transform: translateY(0);
+    opacity: 0.2;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.1;
+  }
+}
+
+/* Hide scrollbar but keep scroll */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
